@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+<bean id="restAuthenticationEntryPoint" class="com.rm.controller.RestAuthenticationEntryPoint"/>
+
+
+<security:http pattern="/private/v1/**" create-session="stateless">
+	<security:intercept-url pattern="/private/v1/**" access="hasRole('ROLE_USER')"/>
+	<security:http-basic/>
+</security:http>
+
+<security:http pattern="/**">
+    <security:form-login 
+      authentication-success-handler-ref="mySuccessHandler"
+      authentication-failure-handler-ref="myFailureHandler" />
+ 	<security:csrf disabled="true"/>
+    <security:logout />
+</security:http>
+ 
+<bean id="mySuccessHandler"
+  class="com.rm.controller.MySavedRequestAwareAuthenticationSuccessHandler"/>
+<bean id="myFailureHandler" class=
+  "org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"/>
+ 
+<security:authentication-manager alias="authenticationManager">
+    <security:authentication-provider>
+        <security:user-service>
+            <security:user name="admin" password="adminPass" authorities="ROLE_ADMIN"/>
+            <security:user name="user" password="userPass" authorities="ROLE_USER"/>
+        </security:user-service>
+    </security:authentication-provider>
+</security:authentication-manager>
+
+</beans>
